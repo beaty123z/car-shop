@@ -1,0 +1,12 @@
+{
+  "name": "carshop",
+  "version": "1.0.0",
+  "description": "CarShop - Premium Auto Parts & Vehicles",
+  "main": "index.html",
+  "scripts": {
+    "start": "php -S 0.0.0.0:${PORT:-8000}"
+  },
+  "keywords": ["carshop", "auto", "parts"],
+  "author": "CarShop Team",
+  "license": "MIT"
+}

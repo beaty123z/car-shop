@@ -3,9 +3,10 @@ services:
     name: carshop-web
     env: php
     plan: free
-    runtime: php-8
+    runtime: php-8.2
+    rootDir: ./
     buildCommand: ""
-    startCommand: php -S 0.0.0.0:${PORT:-8000} -t .
+    startCommand: php -S 0.0.0.0:${PORT:-8000}
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
