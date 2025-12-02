@@ -25,18 +25,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     }
     
     // Start transaction
-    $conn->begin_transaction();
+    $conn->beginTransaction();
     
     try {
         // Insert order
         $order_query = "INSERT INTO orders (user_id, total_amount, payment_method, status) 
-                       VALUES ($user_id, $total, '$payment_method', 'completed')";
+                       VALUES (:user_id, :total, :payment_method, 'completed') RETURNING id";
         
-        if (!$conn->query($order_query)) {
-            throw new Exception("Order creation failed: " . $conn->error);
+        $stmt = $conn->prepare($order_query);
+        $stmt->execute([
+            ':user_id' => $user_id,
+            ':total' => $total,
+            ':payment_method' => $payment_method
+        ]);
+        
+        $order = $stmt->fetch();
+        if (!$order) {
+            throw new Exception("Order creation failed");
         }
         
-        $order_id = $conn->insert_id;
+        $order_id = $order['id'];
         
         // Insert order items
         foreach ($_SESSION['cart'] as $item) {
@@ -46,17 +54,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
             $item_total = $unit_price * $quantity;
             
             $item_query = "INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price) 
-                          VALUES ($order_id, $product_id, $quantity, $unit_price, $item_total)";
+                          VALUES (:order_id, :product_id, :quantity, :unit_price, :item_total)";
             
-            if (!$conn->query($item_query)) {
-                throw new Exception("Order item insertion failed: " . $conn->error);
-            }
+            $stmt = $conn->prepare($item_query);
+            $stmt->execute([
+                ':order_id' => $order_id,
+                ':product_id' => $product_id,
+                ':quantity' => $quantity,
+                ':unit_price' => $unit_price,
+                ':item_total' => $item_total
+            ]);
             
             // Update product stock
-            $stock_query = "UPDATE products SET stock = stock - $quantity WHERE id = $product_id";
-            if (!$conn->query($stock_query)) {
-                throw new Exception("Stock update failed: " . $conn->error);
-            }
+            $stock_query = "UPDATE products SET stock = stock - :quantity WHERE id = :id";
+            $stmt = $conn->prepare($stock_query);
+            $stmt->execute([
+                ':quantity' => $quantity,
+                ':id' => $product_id
+            ]);
         }
         
         $conn->commit();
@@ -73,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
             'total' => $total
         ]);
     } catch (Exception $e) {
-        $conn->rollback();
+        $conn->rollBack();
         header('Content-Type: application/json');
         echo json_encode(['error' => $e->getMessage()]);
     }
@@ -83,15 +98,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 // Get user orders
 if (isset($_GET['action']) && $_GET['action'] == 'get_orders') {
     $user_id = $_SESSION['user_id'];
-    $query = "SELECT * FROM orders WHERE user_id=$user_id ORDER BY order_date DESC";
-    $result = $conn->query($query);
+    $query = "SELECT * FROM orders WHERE user_id = :user_id ORDER BY order_date DESC";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([':user_id' => $user_id]);
     
-    $orders = [];
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $orders[] = $row;
-        }
-    }
+    $orders = $stmt->fetchAll();
     
     header('Content-Type: application/json');
     echo json_encode($orders);
@@ -104,10 +115,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_order_details' && isset($_
     $user_id = $_SESSION['user_id'];
     
     // Verify order belongs to user
-    $order_query = "SELECT * FROM orders WHERE id=$order_id AND user_id=$user_id";
-    $order_result = $conn->query($order_query);
+    $order_query = "SELECT * FROM orders WHERE id = :id AND user_id = :user_id";
+    $stmt = $conn->prepare($order_query);
+    $stmt->execute([':id' => $order_id, ':user_id' => $user_id]);
+    $order_result = $stmt->fetchAll();
     
-    if ($order_result->num_rows !== 1) {
+    if (count($order_result) !== 1) {
         header('Content-Type: application/json');
         echo json_encode(['error' => 'Order not found']);
         exit();
@@ -116,15 +129,13 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_order_details' && isset($_
     // Get order items
     $items_query = "SELECT oi.*, p.name, p.image_url FROM order_items oi 
                    JOIN products p ON oi.product_id = p.id 
-                   WHERE oi.order_id=$order_id";
-    $items_result = $conn->query($items_query);
+                   WHERE oi.order_id = :order_id";
+    $stmt = $conn->prepare($items_query);
+    $stmt->execute([':order_id' => $order_id]);
+    $items_result = $stmt->fetchAll();
     
-    $order_details = $order_result->fetch_assoc();
-    $order_details['items'] = [];
-    
-    while ($item = $items_result->fetch_assoc()) {
-        $order_details['items'][] = $item;
-    }
+    $order_details = $order_result[0];
+    $order_details['items'] = $items_result;
     
     header('Content-Type: application/json');
     echo json_encode($order_details);

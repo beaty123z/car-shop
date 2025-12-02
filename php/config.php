@@ -9,27 +9,26 @@ if (file_exists(__DIR__ . '/../.env')) {
     }
 }
 
-// Database configuration
+// Database configuration for PostgreSQL
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PORT', getenv('DB_PORT') ?: '5432');
+define('DB_USER', getenv('DB_USER') ?: 'postgres');
 define('DB_PASS', getenv('DB_PASS') ?: '');
 define('DB_NAME', getenv('DB_NAME') ?: 'car_shop');
 
-// Create connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Create PostgreSQL connection using PDO
+try {
+    $dsn = "pgsql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME;
+    $conn = new PDO($dsn, DB_USER, DB_PASS);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
 }
-
-// Set charset to UTF-8
-$conn->set_charset("utf8");
 
 // Function to sanitize input
 function sanitize($input) {
-    global $conn;
-    return $conn->real_escape_string(trim($input));
+    return trim($input);
 }
 
 // Function to validate email

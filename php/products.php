@@ -6,12 +6,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_all') {
     $query = "SELECT * FROM products";
     $result = $conn->query($query);
     
-    $products = [];
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $products[] = $row;
-        }
-    }
+    $products = $result->fetchAll();
     
     header('Content-Type: application/json');
     echo json_encode($products);
@@ -21,11 +16,13 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_all') {
 // Get single product
 if (isset($_GET['action']) && $_GET['action'] == 'get_single' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    $query = "SELECT * FROM products WHERE id=$id";
-    $result = $conn->query($query);
+    $query = "SELECT * FROM products WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([':id' => $id]);
+    $result = $stmt->fetchAll();
     
-    if ($result->num_rows === 1) {
-        $product = $result->fetch_assoc();
+    if (count($result) === 1) {
+        $product = $result[0];
         header('Content-Type: application/json');
         echo json_encode($product);
     } else {
@@ -38,15 +35,11 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_single' && isset($_GET['id
 // Get products by category
 if (isset($_GET['action']) && $_GET['action'] == 'get_by_category' && isset($_GET['category'])) {
     $category = sanitize($_GET['category']);
-    $query = "SELECT * FROM products WHERE category='$category'";
-    $result = $conn->query($query);
+    $query = "SELECT * FROM products WHERE category = :category";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([':category' => $category]);
     
-    $products = [];
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $products[] = $row;
-        }
-    }
+    $products = $stmt->fetchAll();
     
     header('Content-Type: application/json');
     echo json_encode($products);
@@ -55,16 +48,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_by_category' && isset($_GE
 
 // Search products
 if (isset($_GET['action']) && $_GET['action'] == 'search' && isset($_GET['query'])) {
-    $search = sanitize($_GET['query']);
-    $query = "SELECT * FROM products WHERE name LIKE '%$search%' OR description LIKE '%$search%'";
-    $result = $conn->query($query);
+    $search = '%' . sanitize($_GET['query']) . '%';
+    $query = "SELECT * FROM products WHERE name ILIKE :search OR description ILIKE :search";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([':search' => $search]);
     
-    $products = [];
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $products[] = $row;
-        }
-    }
+    $products = $stmt->fetchAll();
     
     header('Content-Type: application/json');
     echo json_encode($products);
@@ -77,10 +66,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_categories') {
     $result = $conn->query($query);
     
     $categories = [];
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $categories[] = $row['category'];
-        }
+    foreach ($result as $row) {
+        $categories[] = $row['category'];
     }
     
     header('Content-Type: application/json');

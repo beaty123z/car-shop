@@ -22,22 +22,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
         $_SESSION['error'] = 'Password must be at least 6 characters';
     } else {
         // Check if user already exists
-        $check_query = "SELECT id FROM users WHERE email='$email' OR username='$username'";
-        $result = $conn->query($check_query);
+        $check_query = "SELECT id FROM users WHERE email = :email OR username = :username";
+        $stmt = $conn->prepare($check_query);
+        $stmt->execute([':email' => $email, ':username' => $username]);
+        $result = $stmt->fetchAll();
 
-        if ($result->num_rows > 0) {
+        if (count($result) > 0) {
             $_SESSION['error'] = 'Username or Email already exists';
         } else {
             $hashed_password = hashPassword($password);
             $insert_query = "INSERT INTO users (username, email, password, full_name, phone, address) 
-                            VALUES ('$username', '$email', '$hashed_password', '$full_name', '$phone', '$address')";
-
-            if ($conn->query($insert_query) === TRUE) {
+                            VALUES (:username, :email, :password, :full_name, :phone, :address)";
+            $stmt = $conn->prepare($insert_query);
+            
+            try {
+                $stmt->execute([
+                    ':username' => $username,
+                    ':email' => $email,
+                    ':password' => $hashed_password,
+                    ':full_name' => $full_name,
+                    ':phone' => $phone,
+                    ':address' => $address
+                ]);
                 $_SESSION['success'] = 'Registration successful! Please login.';
                 header('Location: ../login.html');
                 exit();
-            } else {
-                $_SESSION['error'] = 'Registration failed: ' . $conn->error;
+            } catch (PDOException $e) {
+                $_SESSION['error'] = 'Registration failed: ' . $e->getMessage();
             }
         }
     }
@@ -51,11 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     if (empty($email) || empty($password)) {
         $_SESSION['error'] = 'Email and password are required';
     } else {
-        $login_query = "SELECT id, username, password FROM users WHERE email='$email'";
-        $result = $conn->query($login_query);
+        $login_query = "SELECT id, username, password FROM users WHERE email = :email";
+        $stmt = $conn->prepare($login_query);
+        $stmt->execute([':email' => $email]);
+        $result = $stmt->fetchAll();
 
-        if ($result->num_rows === 1) {
-            $user = $result->fetch_assoc();
+        if (count($result) === 1) {
+            $user = $result[0];
             if (verifyPassword($password, $user['password'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];

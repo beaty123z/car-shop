@@ -26,11 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     }
     
     // Check if product exists
-    $query = "SELECT * FROM products WHERE id=$product_id";
-    $result = $conn->query($query);
+    $query = "SELECT * FROM products WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([':id' => $product_id]);
+    $result = $stmt->fetchAll();
     
-    if ($result->num_rows === 1) {
-        $product = $result->fetch_assoc();
+    if (count($result) === 1) {
+        $product = $result[0];
         
         if ($quantity > $product['stock']) {
             echo json_encode(['error' => 'Insufficient stock']);
