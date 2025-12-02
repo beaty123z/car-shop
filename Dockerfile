@@ -19,14 +19,16 @@ COPY . .
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html
 
-# Expose port
-EXPOSE 8000
+# Configure Apache to listen on PORT environment variable
+RUN sed -i 's/Listen 80/Listen ${PORT:-8000}/g' /etc/apache2/ports.conf
 
-# Set Apache document root to /var/www/html
+# Set Apache document root
 ENV APACHE_DOCUMENT_ROOT=/var/www/html
-
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Start Apache
+# Expose port
+EXPOSE 8000
+
+# Start Apache in foreground
 CMD ["apache2-foreground"]
