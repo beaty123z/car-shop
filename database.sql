@@ -1,11 +1,8 @@
--- Car Shop Database Schema
-
-CREATE DATABASE IF NOT EXISTS car_shop;
-USE car_shop;
+-- Car Shop Database Schema for PostgreSQL
 
 -- Users Table
 CREATE TABLE IF NOT EXISTS users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -17,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Products Table
 CREATE TABLE IF NOT EXISTS products (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     category VARCHAR(50) NOT NULL,
     description TEXT,
@@ -29,7 +26,7 @@ CREATE TABLE IF NOT EXISTS products (
 
 -- Orders Table
 CREATE TABLE IF NOT EXISTS orders (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     total_amount DECIMAL(10, 2) NOT NULL,
     payment_method VARCHAR(50) NOT NULL,
@@ -40,7 +37,7 @@ CREATE TABLE IF NOT EXISTS orders (
 
 -- Order Items Table
 CREATE TABLE IF NOT EXISTS order_items (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id SERIAL PRIMARY KEY,
     order_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL,
@@ -48,6 +45,7 @@ CREATE TABLE IF NOT EXISTS order_items (
     total_price DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
+);
 );
 
 -- Sample Products
