@@ -5,7 +5,7 @@ services:
     plan: free
     runtime: php-8.2
     rootDir: ./
-    buildCommand: ""
+    buildCommand: "echo 'PHP app ready'"
     startCommand: php -S 0.0.0.0:${PORT:-8000}
     healthCheckPath: /
     envVars:
