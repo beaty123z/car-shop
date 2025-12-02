@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - CarShop</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>🚗 CarShop</h1>
+            </div>
+            <ul class="nav-links">
+                <li><span id="username-display" class="username"></span></li>
+                <li><a href="cart.html" class="btn-secondary">Back to Cart</a></li>
+                <li><a href="php/auth.php?logout=1" class="btn-logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="checkout-wrapper">
+            <!-- Order Review -->
+            <section class="checkout-section">
+                <h2>Order Review</h2>
+                
+                <div class="order-review">
+                    <table class="order-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="order-items-list">
+                            <!-- Order items will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="order-totals">
+                    <div class="total-item">
+                        <span>Subtotal:</span>
+                        <span id="order-subtotal">0.00</span>
+                    </div>
+                    <div class="total-item">
+                        <span>Tax (10%):</span>
+                        <span id="order-tax">0.00</span>
+                    </div>
+                    <div class="total-item grand-total">
+                        <span>Grand Total:</span>
+                        <span id="order-total">0.00</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Payment Section -->
+            <section class="checkout-section">
+                <h2>Payment Method</h2>
+
+                <div class="payment-methods">
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="card" checked>
+                        <span class="payment-label">💳 Credit/Debit Card</span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="mpesa">
+                        <span class="payment-label">📱 M-Pesa</span>
+                    </label>
+                </div>
+
+                <!-- Card Payment Form -->
+                <div id="card-form" class="payment-form">
+                    <h4>Card Details</h4>
+                    
+                    <div class="form-group">
+                        <label for="cardholder-name">Cardholder Name</label>
+                        <input type="text" id="cardholder-name" placeholder="Enter name on card">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="card-number">Card Number</label>
+                        <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expiry">Expiry Date</label>
+                            <input type="text" id="expiry" placeholder="MM/YY" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">CVV</label>
+                            <input type="text" id="cvv" placeholder="123" maxlength="3">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- M-Pesa Payment Form -->
+                <div id="mpesa-form" class="payment-form" style="display: none;">
+                    <h4>M-Pesa Payment</h4>
+                    
+                    <div class="form-group">
+                        <label for="mpesa-phone">Phone Number</label>
+                        <input type="tel" id="mpesa-phone" placeholder="254712345678">
+                    </div>
+                    
+                    <p class="info-text">You will receive an STK push on your phone to complete the payment.</p>
+                </div>
+
+                <button class="btn btn-primary btn-block btn-lg" onclick="processPayment()">Complete Payment</button>
+            </section>
+        </div>
+    </div>
+
+    <!-- Payment Processing Modal -->
+    <div id="processingModal" class="modal">
+        <div class="modal-content modal-center">
+            <div class="spinner"></div>
+            <h3>Processing Payment...</h3>
+            <p id="processing-message">Please wait while we process your payment.</p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-bottom">
+            <p>&copy; 2025 CarShop. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/checkout.js"></script>
+</body>
+</html>

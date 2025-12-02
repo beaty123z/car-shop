@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: carshop-web
+    env: php
+    plan: free
+    buildCommand: |
+      curl -sS https://getcomposer.org/installer | php
+      php composer.phar install --no-dev --no-interaction
+    startCommand: php -S 0.0.0.0:${PORT:-8000} -t .
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        scope: run
+      - key: DB_HOST
+        value: localhost
+      - key: DB_USER
+        value: carshop_user
+      - key: DB_PASS
+        scope: run
+      - key: DB_NAME
+        value: car_shop
+
+  - type: pserv
+    name: carshop-mysql
+    env: mysql
+    plan: free
+    ipAddress: 127.0.0.1
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        scope: run
+      - key: MYSQL_DATABASE
+        value: car_shop
+      - key: MYSQL_USER
+        value: carshop_user
+      - key: MYSQL_PASSWORD
+        scope: run
+    initialDatabase: car_shop

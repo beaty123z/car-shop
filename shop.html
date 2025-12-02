@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - CarShop</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>🚗 CarShop</h1>
+            </div>
+            <ul class="nav-links">
+                <li><span id="username-display" class="username"></span></li>
+                <li><a href="cart.html" class="cart-link">🛒 Cart <span id="cart-count" class="cart-badge">0</span></a></li>
+                <li><a href="php/auth.php?logout=1" class="btn-logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container shop-container">
+        <!-- Sidebar -->
+        <aside class="shop-sidebar">
+            <div class="filters">
+                <h3>Filters</h3>
+                
+                <div class="filter-group">
+                    <h4>Category</h4>
+                    <div id="categories-list" class="categories-list">
+                        <label><input type="radio" name="category" value="" checked> All Products</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Price Range</h4>
+                    <input type="range" id="price-range" min="0" max="100000" value="100000">
+                    <p>Max: <span id="price-value">100,000</span> KES</p>
+                </div>
+
+                <button class="btn btn-secondary" onclick="resetFilters()">Reset Filters</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <section class="shop-main">
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search products...">
+                <button onclick="searchProducts()" class="btn btn-primary">Search</button>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="products-grid" class="products-grid">
+                <!-- Products will be loaded here by JavaScript -->
+                <div class="loading">Loading products...</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Add to Cart Modal -->
+    <div id="addToCartModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modal-product-name"></h2>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <div id="modal-image" class="product-image-placeholder-large"></div>
+                </div>
+                <div class="modal-details">
+                    <p id="modal-product-description"></p>
+                    <h3 id="modal-product-price"></h3>
+                    <p id="modal-product-stock"></p>
+                    
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <div class="quantity-control">
+                            <button onclick="decreaseQty()">-</button>
+                            <input type="number" id="quantity" value="1" min="1" max="10">
+                            <button onclick="increaseQty()">+</button>
+                        </div>
+                    </div>
+
+                    <button id="add-to-cart-btn" class="btn btn-primary btn-block" onclick="addToCart()">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-bottom">
+            <p>&copy; 2025 CarShop. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/shop.js"></script>
+</body>
+</html>
