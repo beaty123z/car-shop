@@ -4,15 +4,21 @@ services:
     env: docker
     plan: free
     dockerfile: ./Dockerfile
+    dockerCommand: "apache2-foreground"
     healthCheckPath: /
     envVars:
       - key: DB_HOST
         scope: run
+        value: dpg-d4n7up2li9vc73fdfolg-a.internal
       - key: DB_PORT
+        scope: run
         value: "5432"
       - key: DB_USER
         scope: run
       - key: DB_PASS
         scope: run
       - key: DB_NAME
-        value: car_shop
+        scope: run
+        value: car_shop_ds3n
+      - key: PORT
+        value: "8000"
