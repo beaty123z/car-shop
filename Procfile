@@ -1,1 +1,3 @@
-web: php -S 0.0.0.0:${PORT:-8000} -t public/
+# This file is not used with Docker deployment
+# Docker uses the Dockerfile and render.yaml configuration instead
+
