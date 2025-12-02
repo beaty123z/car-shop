@@ -3,9 +3,8 @@ services:
     name: carshop-web
     env: php
     plan: free
-    buildCommand: |
-      curl -sS https://getcomposer.org/installer | php
-      php composer.phar install --no-dev --no-interaction
+    runtime: php-8
+    buildCommand: ""
     startCommand: php -S 0.0.0.0:${PORT:-8000} -t .
     healthCheckPath: /
     envVars:
