@@ -46,7 +46,6 @@ CREATE TABLE IF NOT EXISTS order_items (
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
-);
 
 -- Sample Products
 INSERT INTO products (name, category, description, price, stock, image_url) VALUES
