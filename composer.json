@@ -1,0 +1,21 @@
+{
+    "name": "carshop/carshop",
+    "description": "CarShop - Premium Auto Parts & Vehicles E-commerce Platform",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "CarShop Team",
+            "email": "info@carshop.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {},
+    "autoload": {
+        "psr-4": {
+            "CarShop\\": "src/"
+        }
+    }
+}

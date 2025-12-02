@@ -5,8 +5,8 @@ services:
     plan: free
     runtime: php-8.2
     rootDir: ./
-    buildCommand: "echo 'PHP app ready'"
-    startCommand: php -S 0.0.0.0:${PORT:-8000}
+    buildCommand: "composer install --no-dev --no-interaction || true"
+    startCommand: "php -S 0.0.0.0:${PORT:-8000} -t ."
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
