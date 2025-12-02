@@ -1,16 +1,12 @@
 services:
   - type: web
     name: carshop-web
-    env: php
+    env: node
     plan: free
-    runtime: php-8.2
-    rootDir: ./
-    buildCommand: "composer install --no-dev --no-interaction || true"
-    startCommand: "php -S 0.0.0.0:${PORT:-8000} -t ."
+    buildCommand: "npm install"
+    startCommand: "node server.js"
     healthCheckPath: /
     envVars:
-      - key: DATABASE_URL
-        scope: run
       - key: DB_HOST
         scope: run
       - key: DB_PORT
